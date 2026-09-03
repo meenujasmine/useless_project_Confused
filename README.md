@@ -2,96 +2,87 @@
 
 
 
-# [Project Name] 🎯
+# [I'M CONFUSED] 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: [LoLoPoLo]
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: [Meenu Jasmine] - [LBS Institute of Technology for Women]
+- Member 2: [Drisya DC] - [LBS Institute of Technology for Women]
 
 ### Project Description
-[2-3 lines about what your project does]
+[“I’m Confused” is a chaotic Pac-Man-style game where you dodge through a maze using WASD controls that randomly switch, reverse, or completely troll you. With glitchy home screens, fake buttons, time limits, and unhinged visuals, the game basically asks this: Will you survive the confusion?]
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+[We’re solving the extremely real crisis of **Pac-Man being way too good at directions**.]
+
+[Because why should left mean left? Every normal control is suspicious, the keyboard is plotting, and Pac-Man needs to be humbled immediately.] 
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+[We solve this very serious crisis by turning a basic Pac-Man game into a full keyboard trust exercise. The WASD controls randomly switch, reverse, or completely betray the player, while glitchy screens and suspicious Start buttons add extra chaos.
+
+It’s fun, unpredictable, and mildly stressful, because apparently even Pac-Man needed a villain arc.]
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
-
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- HTML5
+- CSS3
+- JavaScript (Vanilla JS)
+- HTML Canvas API
+- Web Storage API (`localStorage`)
+- VS Code and modern web browser
 
 ### Implementation
 For Software:
 # Installation
-[commands]
+No installation is required. The project is a standalone HTML file with inline CSS and JavaScript.
 
 # Run
-[commands]
+1. Open `index.html` in a modern web browser.
+2. Click **Start** on the homepage.
+3. Use `W`, `A`, `S`, and `D` to control Pac-Man.
+
+The game can also be served locally with any static web server, such as the VS Code Live Server extension.
 
 ### Project Documentation
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+![Homepage](screenshots/homepage.png)
+*The normal homepage introduces the game and its Start button.*
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+![Game screen](screenshots/game-screen.png)
+*The Pac-Man-style maze with score, timer, dots, and randomized control mode.*
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+![Chaotic homepage](screenshots/chaotic-homepage.png)
+*A glitched homepage variant with unstable visuals and misleading Start buttons.*
 
 # Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
+```mermaid
+flowchart LR
+	A[Open index.html] --> B[Homepage variant]
+	B --> C{Start interaction}
+	C -->|Valid| D[Game screen]
+	D --> E[Random WASD mapping]
+	D --> F[Collect dots and score]
+	D --> G[Session or inactivity timeout]
+	G --> B
+	C -->|Fake button or locked state| B
+```
+*The workflow shows how homepage variants lead into the randomized Pac-Man game and back again.*
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
-
-# Additional Demos
-[Add any extra demo materials/links]
+[Add demo video link here]
+*The demo video shows the normal homepage, the chaotic homepage variants, the fake Start buttons, and the Pac-Man-style game with normal, reversed, interchanged, and randomized WASD controls.*
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- [Meenu Jasmine]: Designed the game concept, implemented the Pac-Man-style maze, randomized WASD controls, timers, scoring, and homepage progression logic.
+- [Drisya DC]: Developed the chaotic UI designs, glitch effects, homepage button interactions, responsive styling, project documentation, and testing.
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 

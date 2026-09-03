@@ -1,1 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>I'm Confused</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+		:root { --ink:#f5f1e8; --dim:#8e928c; --acid:#d4ff3f; --coral:#ff6859; --night:#101311; --line:#323832; }
+		* { box-sizing:border-box; }
+		body { margin:0; min-height:100vh; color:var(--ink); background:var(--night); font-family:'Space Grotesk',sans-serif; overflow-x:hidden; }
+		button { font:inherit; cursor:pointer; }
+		.screen { min-height:100vh; display:none; position:relative; overflow:hidden; }
+		.screen.active { display:flex; }
+		.home { align-items:center; justify-content:center; background:radial-gradient(circle at 50% 50%, #202820 0, #101311 50%, #0b0d0b 100%); }
+		.home:before { content:''; position:absolute; inset:0; opacity:.3; background-image:linear-gradient(#283028 1px,transparent 1px),linear-gradient(90deg,#283028 1px,transparent 1px); background-size:44px 44px; mask-image:linear-gradient(to bottom,transparent,#000 28%,#000 72%,transparent); }
+		.topline { position:absolute; top:26px; left:30px; right:30px; display:flex; justify-content:space-between; color:var(--dim); font:11px 'DM Mono',monospace; letter-spacing:.12em; text-transform:uppercase; z-index:2; }
+		.home-core { position:relative; width:min(830px,90vw); text-align:center; z-index:1; }
+		.eyebrow { color:var(--acid); font:12px 'DM Mono',monospace; letter-spacing:.16em; text-transform:uppercase; margin-bottom:24px; }
+		h1 { margin:0; color:var(--ink); font-size:clamp(64px,13vw,172px); line-height:.82; letter-spacing:-.08em; font-weight:700; }
+		.sub { margin:28px auto 34px; max-width:430px; color:var(--dim); font:13px/1.5 'DM Mono',monospace; }
+		.start { border:1px solid var(--acid); color:var(--night); background:var(--acid); padding:15px 34px 14px; min-width:154px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; position:relative; transition:transform .16s, background .16s; }
+		.start:hover { transform:translateY(-3px) rotate(-1deg); background:#ecff9b; }
+		.hint { position:absolute; bottom:28px; color:#626861; font:11px 'DM Mono',monospace; letter-spacing:.05em; }
+		.game { align-items:center; justify-content:center; background:#0c0e0c; padding:70px 22px 35px; }
+		.game-wrap { width:min(930px,100%); display:grid; grid-template-columns:minmax(420px,640px) 220px; gap:34px; align-items:start; }
+		.game-head { grid-column:1/-1; display:flex; justify-content:space-between; align-items:end; border-bottom:1px solid var(--line); padding-bottom:14px; }
+		.game-head h2 { margin:0; font-size:24px; letter-spacing:-.05em; } .status { color:var(--acid); font:11px 'DM Mono',monospace; text-transform:uppercase; }
+		canvas { width:100%; aspect-ratio:1.35; display:block; border:1px solid #3d493c; background:#111811; image-rendering:pixelated; }
+		.sidebar { font:12px 'DM Mono',monospace; color:var(--dim); }
+		.stat { border-top:1px solid var(--line); padding:15px 0; display:flex; justify-content:space-between; } .stat b { color:var(--ink); font-weight:500; }
+		.rule { margin:20px 0; padding:14px; border:1px solid var(--line); line-height:1.7; } .rule strong { color:var(--acid); font-weight:500; }
+		.back { border:1px solid var(--line); color:var(--dim); background:transparent; padding:10px 14px; font:11px 'DM Mono',monospace; text-transform:uppercase; } .back:hover { color:var(--ink); border-color:var(--ink); }
+		.broken h1 { animation:jerk .19s infinite; text-shadow:3px 0 var(--coral),-3px 0 #63e5d0; transform:rotate(-1deg); }
+		.broken .start { border-style:dashed; background:transparent; color:var(--acid); animation:shake .4s infinite; }
+		.broken .sub:after { content:' // signal damaged'; color:var(--coral); }
+		.glitch h1 { animation:float 2s ease-in-out infinite alternate; text-shadow:8px 0 var(--coral),-7px 0 #63e5d0; }
+		.glitch .start { position:fixed; animation:none; z-index:5; }
+		.glitch .home-core { animation:float 1.8s infinite alternate; }
+		.frozen { filter:contrast(.78) saturate(.3); } .frozen * { cursor:wait !important; } .frozen .start { opacity:.62; }
+		.crowded .home-core { padding-top:30px; } .fake-start { position:absolute; border:1px solid #3a443a; color:#798077; background:#171c17; padding:11px 20px; font:11px 'DM Mono',monospace; text-transform:uppercase; }
+		.fake-start:hover { border-color:var(--coral); color:var(--coral); }
+		.crowded .fake-start { z-index:3; animation:crowdShake .35s infinite alternate; }
+		.crowded .fake-start.real { border-color:#3a443a; color:#798077; background:#171c17; z-index:4; }
+		.stamp { color:#5d655d; font:10px 'DM Mono',monospace; margin-top:24px; }
+		@keyframes jerk { 0%,100%{transform:translate(0)} 30%{transform:translate(4px,-2px)} 60%{transform:translate(-3px,2px)} }
+		@keyframes shake { 0%,100%{transform:rotate(0)} 50%{transform:rotate(2deg) translateX(3px)} }
+		@keyframes float { to { transform:translate(18px,-12px) rotate(1deg); } }
+		@keyframes crowdShake { from { margin-left:-3px; } to { margin-left:4px; } }
+		@keyframes roam { 0%{top:53%;left:43%} 25%{top:70%;left:72%} 50%{top:20%;left:18%} 75%{top:78%;left:14%} 100%{top:53%;left:43%} }
+		@keyframes reveal { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+		@keyframes scanline { from { transform:translateY(-100%); } to { transform:translateY(100vh); } }
+		@keyframes chaosFlash { 0%,91%,100%{opacity:0;transform:translateX(0)} 92%{opacity:.7;transform:translateX(12px)} 94%{opacity:0;transform:translateX(-8px)} }
+		@keyframes borderFlicker { 0%,84%,100%{border-color:#63e5d0} 85%{border-color:#ff6859} 87%{border-color:#d4ff3f} }
+		@keyframes tiltJitter { 0%,100%{transform:rotate(.35deg)} 50%{transform:rotate(-.35deg) translateY(-2px)} }
+		::selection { color:var(--night); background:var(--acid); }
+		button:focus-visible { outline:2px solid #63e5d0; outline-offset:4px; }
+		.screen.active { animation:reveal .42s ease both; }
+		.home { background:radial-gradient(ellipse at 52% 36%,#273429 0,#131914 42%,#090b09 100%); }
+		.home:after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.045; background:repeating-linear-gradient(0deg,transparent 0 3px,#f5f1e8 4px 5px); animation:scanline 8s linear infinite; }
+		.topline { top:24px; left:32px; right:32px; color:#aab1a7; }
+		.home-core { animation:reveal .7s .08s ease both; }
+		.home-core:before { content:'ERR_404 // THINKING NOT FOUND // ERR_404'; position:absolute; top:-42px; left:50%; width:100vw; transform:translateX(-50%); color:#ff6859; opacity:.2; font:10px 'DM Mono',monospace; letter-spacing:.22em; white-space:nowrap; animation:chaosFlash 4s steps(1) infinite; pointer-events:none; }
+		.eyebrow { display:inline-flex; align-items:center; gap:10px; color:#63e5d0; }
+		.eyebrow:before { content:'+'; color:var(--coral); font-size:16px; }
+		h1 { color:#fcf8ed; font-size:clamp(68px,12vw,158px); letter-spacing:0; text-shadow:10px 10px 0 rgba(212,255,63,.07); }
+		.sub { color:#aeb5aa; }
+		.start { box-shadow:7px 7px 0 #63800e; letter-spacing:.08em; }
+		.start:hover { box-shadow:3px 3px 0 #63800e; }
+		.start:active { transform:translate(4px,4px); box-shadow:0 0 0 #63800e; }
+		.start { animation:borderFlicker 3.2s steps(1) infinite; }
+		.stamp { color:#7e887e; }
+		.hint { color:#7e887e; }
+		.game { align-items:center; background:radial-gradient(ellipse at 20% 20%,#1c281f 0,#0d110e 48%,#080a08 100%); }
+		.game:before { content:'PAC / 04'; position:absolute; top:28px; left:32px; color:#3f5142; font:11px 'DM Mono',monospace; letter-spacing:.12em; }
+		.game-wrap { width:min(1050px,100%); grid-template-columns:minmax(480px,740px) 240px; gap:38px; }
+		.game-wrap:after { content:'/// INPUT // OUTPUT /// INPUT // OUTPUT ///'; position:absolute; left:-34px; bottom:-28px; color:#314333; font:9px 'DM Mono',monospace; letter-spacing:.2em; white-space:nowrap; pointer-events:none; animation:chaosFlash 5.5s steps(1) infinite; }
+		.game-head { border-bottom-color:#48564a; padding-bottom:17px; }
+		.game-head h2 { color:#fcf8ed; font-size:28px; letter-spacing:0; }
+		.status { color:#63e5d0; letter-spacing:.14em; }
+		canvas { border:2px solid #4d7154; box-shadow:0 0 0 6px #111911,0 16px 45px rgba(0,0,0,.35); background:#101710; }
+		canvas { animation:borderFlicker 4.7s steps(1) infinite; }
+		.sidebar { color:#aeb5aa; }
+		.stat { border-top-color:#3d493f; padding:16px 0; }
+		.stat b { color:#fcf8ed; font-size:14px; }
+		.rule { border-color:#4d7154; background:rgba(20,31,21,.62); box-shadow:inset 3px 0 var(--acid); padding:17px; }
+		.rule { animation:tiltJitter 3.8s ease-in-out infinite; }
+		.rule strong { color:#63e5d0; letter-spacing:.1em; }
+		.back { border-color:#4d7154; color:#aeb5aa; transition:color .16s,border-color .16s,transform .16s; }
+		.back:hover { color:#fcf8ed; border-color:#63e5d0; transform:translateY(-2px); }
+		.glitch h1 { letter-spacing:0; }
+		.crowded .home-core { background:rgba(10,14,10,.7); padding:34px 24px; border:1px solid #29372b; }
+		.crowded .fake-start { transition:color .14s,border-color .14s; }
+		.crowded .fake-start:hover { color:#fcf8ed; border-color:#63e5d0; }
+		body { background:#080a09; }
+		.screen { isolation:isolate; }
+		.home { background:radial-gradient(ellipse at 48% 42%,#31422c 0,#111711 34%,#080a09 76%); }
+		.home:before { opacity:.42; background-size:34px 34px; }
+		.home:after { opacity:.07; background:repeating-linear-gradient(0deg,transparent 0 2px,#ff6859 3px 4px,transparent 5px 7px); mix-blend-mode:screen; }
+		.home-core { filter:drop-shadow(0 0 22px rgba(212,255,63,.08)); }
+		h1 { position:relative; font-weight:700; text-transform:none; text-shadow:4px 0 #ff6859,-4px 0 #63e5d0,12px 12px 0 rgba(212,255,63,.07); animation:titleJolt 3.7s steps(1) infinite; }
+		.eyebrow { text-shadow:0 0 10px rgba(99,229,208,.6); }
+		.sub { max-width:480px; color:#c0c8bb; }
+		.start { clip-path:polygon(0 0,97% 0,100% 18%,98% 100%,3% 100%,0 82%); border-width:2px; box-shadow:7px 7px 0 #63800e,0 0 22px rgba(212,255,63,.16); }
+		.start:hover { box-shadow:3px 3px 0 #63800e,0 0 32px rgba(212,255,63,.28); }
+		.hint:before { content:'// '; color:var(--coral); }
+		.game { background:radial-gradient(ellipse at 15% 15%,#263b2b 0,#0e1510 31%,#070908 100%); }
+		.game:after { content:'SIGNAL UNSTABLE'; position:absolute; right:32px; top:28px; color:#ff6859; font:10px 'DM Mono',monospace; letter-spacing:.16em; animation:blink .9s steps(1) infinite; }
+		.game-wrap { position:relative; }
+		.game-head { border-bottom:2px solid #4d7154; }
+		.game-head h2 { text-transform:uppercase; text-shadow:3px 0 #ff6859; }
+		.status:before { content:'● '; color:#ff6859; animation:blink .9s steps(1) infinite; }
+		canvas { border-color:#63e5d0; box-shadow:0 0 0 2px #ff6859,8px 8px 0 #253d2b,0 0 40px rgba(99,229,208,.16); }
+		.sidebar { position:relative; }
+		.sidebar:before { content:'// LIVE FEED'; display:block; color:#ff6859; font-size:10px; letter-spacing:.16em; margin-bottom:8px; }
+		.stat { border-top:2px solid #3d493f; }
+		.stat b { text-shadow:0 0 8px rgba(212,255,63,.35); }
+		.rule { border-width:2px; border-color:#63e5d0; color:#c0c8bb; transform:rotate(.35deg); }
+		.back { border-width:2px; clip-path:polygon(0 0,96% 0,100% 25%,97% 100%,4% 100%,0 75%); }
+		.broken h1 { animation:titleJolt .19s steps(1) infinite; }
+		.glitch h1 { animation:titleJolt .33s steps(1) infinite; }
+		.frozen h1 { animation:none; }
+		@keyframes titleJolt { 0%,86%,100%{transform:translate(0) skew(0)} 87%{transform:translate(3px,-2px) skew(-4deg)} 89%{transform:translate(-4px,1px) skew(3deg)} 91%{transform:translate(0) skew(0)} }
+		@keyframes blink { 0%,48%{opacity:1} 49%,100%{opacity:.2} }
+		.topline span:last-child { color:var(--acid); border-left:1px solid #3d493f; padding-left:14px; }
+		.home-core:after { content:'NO MAP / NO MERCY'; display:block; width:max-content; margin:26px auto 0; color:#536053; font:10px 'DM Mono',monospace; letter-spacing:.2em; border-top:1px solid #344034; padding-top:10px; }
+		.game-head:after { content:'SESSION // 01'; align-self:flex-start; color:#536053; font:10px 'DM Mono',monospace; letter-spacing:.16em; }
+		.game-head h2:before { content:'[ '; color:var(--coral); }
+		.game-head h2:after { content:' ]'; color:var(--coral); }
+		canvas { filter:saturate(1.1) contrast(1.04); }
+		.stat:first-of-type b { color:var(--acid); }
+		.rule strong { display:block; border-bottom:1px solid #46614b; padding-bottom:10px; margin-bottom:10px; }
+		.back { letter-spacing:.08em; }
+		@media (max-width:700px) { .game { overflow:auto; align-items:flex-start; } .game-wrap { display:block; } .sidebar { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; margin-top:20px; } .rule { grid-column:1/-1; } .game-head { margin-bottom:16px; align-items:flex-start; flex-wrap:wrap; } .game-head h2 { font-size:20px; line-height:1.15; overflow-wrap:anywhere; } .game-head:after { order:3; width:100%; margin-top:5px; } canvas { aspect-ratio:1.1; } .topline { left:18px; right:18px; } .topline span:first-child { max-width:190px; } }
+		@media (prefers-reduced-motion:reduce) { *,*:before,*:after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; } }
+	</style>
+</head>
+<body>
+	<main id="home" class="screen home active"><div class="topline"><span>IC-00 / arcade study</span><span id="visit-readout">home 01</span></div><section class="home-core"><div class="eyebrow">a maze with no correct direction</div><h1 id="title">I'm<br>Confused</h1><p class="sub" id="home-sub">A tiny arcade for people who have forgotten which way is up.</p><button class="start" id="start">Start</button><div class="stamp">movement is temporary · certainty is optional</div></section><div class="hint">W A S D / keys only</div></main>
+	<main id="game" class="screen game"><div class="game-wrap"><header class="game-head"><div><div class="status">live session / <span id="mode-label">normal</span></div><h2>Find your way out.</h2></div><button class="back" id="quit">Return home</button></header><canvas id="board" width="720" height="540" aria-label="Pac-Man style maze game"></canvas><aside class="sidebar"><div class="stat"><span>score</span><b id="score">0000</b></div><div class="stat"><span>session</span><b id="timer">10:00</b></div><div class="stat"><span>confusion</span><b id="confusion">normal</b></div><div class="rule"><strong>INPUT CONDITION</strong><br><br>WASD is the only language this maze understands.<br><br>Wrong key returns home.<br>Silence returns home after 5+ minutes.</div><div class="stat"><span>dots left</span><b id="dots">--</b></div></aside></div></main>
+	<script>
+		const home = document.querySelector('#home'), game = document.querySelector('#game');
+		const start = document.querySelector('#start'), quit = document.querySelector('#quit'), canvas = document.querySelector('#board'), ctx = canvas.getContext('2d');
+		const title = document.querySelector('#title'), sub = document.querySelector('#home-sub'), visitReadout = document.querySelector('#visit-readout');
+		const scoreEl = document.querySelector('#score'), timerEl = document.querySelector('#timer'), confusionEl = document.querySelector('#confusion'), modeLabel = document.querySelector('#mode-label'), dotsEl = document.querySelector('#dots');
+		const random = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+		let visits = Number(localStorage.getItem('confused-home-visits') || 0), homeMode, clickGoal, idleTimer, sessionTimer, floatTimer, crowdTimer, gameStarted = false;
+		const modes = ['normal','reverse','partial','interchanged','randomized'];
+		function showHome(mode) {
+			clearTimeout(idleTimer); clearInterval(sessionTimer); clearTimeout(floatTimer); clearTimeout(crowdTimer); gameStarted = false; game.classList.remove('active'); homeMode = mode || (visits < 5 ? visits : random(1,5));
+			home.className = 'screen home active ' + ({2:'glitch',3:'frozen',4:'crowded'}[homeMode] || (homeMode===1?'broken':''));
+			visitReadout.textContent = 'home ' + String(visits).padStart(2,'0');
+			title.innerHTML = homeMode===1 ? 'I\'m<br>Confused' : homeMode===2 ? 'I\'m<br>Con—fused' : homeMode===3 ? 'I\'m<br>Confused' : 'I\'m<br>Confused';
+			sub.textContent = homeMode===3 ? '...the interface is not responding...' : homeMode===4 ? 'There are buttons everywhere. One of them means it.' : 'A tiny arcade for people who have forgotten which way is up.';
+			document.querySelectorAll('.fake-start').forEach(el=>el.remove());
+			start.style.display = homeMode===4 ? 'none' : '';
+			if (homeMode===1) { clickGoal=random(5,10); start.textContent='Start ['+clickGoal+' clicks left]'; }
+			if (homeMode===2) { clickGoal=13; start.textContent='Start [13 clicks left]'; scheduleGlitchButton(); }
+			if (homeMode===3) { clickGoal=random(5,15); start.textContent='Start ['+clickGoal+' clicks left]'; }
+			if (homeMode===4) { makeCrowd(); scheduleCrowdButtons(); }
+		}
+		function scheduleGlitchButton() { if (homeMode!==2) return; start.style.top=random(16,78)+'%'; start.style.left=random(8,82)+'%'; start.style.transform='rotate('+random(-8,8)+'deg)'; floatTimer=setTimeout(scheduleGlitchButton,random(450,1400)); }
+		function makeCrowd() { for(let i=0;i<27;i++){ const b=document.createElement('button'); b.className='fake-start'; b.textContent='Start'; b.style.left=random(3,92)+'%'; b.style.top=random(5,92)+'%'; b.addEventListener('click',()=>{ if(b.classList.contains('real')) beginGame(); }); home.appendChild(b); } const real=document.createElement('button'); real.className='fake-start real'; real.textContent='Start'; real.style.left=random(20,70)+'%'; real.style.top=random(35,65)+'%'; real.addEventListener('click',beginGame); home.appendChild(real); }
+		function scheduleCrowdButtons() { if(homeMode!==4) return; document.querySelectorAll('.fake-start').forEach(button=>{ button.style.left=random(2,90)+'%'; button.style.top=random(4,90)+'%'; button.style.rotate=random(-8,8)+'deg'; }); crowdTimer=setTimeout(scheduleCrowdButtons,random(500,1500)); }
+		start.addEventListener('click',()=>{ if(homeMode===1 || homeMode===2 || homeMode===3){ clickGoal--; start.textContent='Start ['+Math.max(0,clickGoal)+' clicks left]'; if(clickGoal<=0) beginGame(); } else beginGame(); });
+		function beginGame(){ clearTimeout(floatTimer); clearTimeout(crowdTimer); visits++; localStorage.setItem('confused-home-visits',visits); home.classList.remove('active'); game.classList.add('active'); gameStarted=true; initGame(); }
+		quit.addEventListener('click',()=>showHome());
+		const map=[
+			'1111111111111111111','1000000001000000001','1011110111011110101','1000000100010000001','1011011101011101101','1001000000000001001','1111010111110101111','1000010100010100001','1011110101010111101','1000000000000000001','1011110101010111101','1000010100010100001','1111010111110101111','1001000000000001001','1011011101011101101','1000000100010000001','1011110111011110101','1000000001000000001','1111111111111111111'];
+		let player, dots, score, mode, controlMap, heldKeys = new Set(), lastFrame;
+		const directions={w:[0,-1],a:[-1,0],s:[0,1],d:[1,0]};
+		function initGame(){ score=0; mode=modes[random(0,modes.length-1)]; controlMap={...directions}; if(mode==='reverse') controlMap={w:[0,1],a:[1,0],s:[0,-1],d:[-1,0]}; if(mode==='partial') controlMap={w:[0,1],a:[-1,0],s:[0,-1],d:[1,0]}; if(mode==='interchanged') controlMap={w:[1,0],a:[0,-1],s:[-1,0],d:[0,1]}; if(mode==='randomized'){ const shuffled=Object.values(directions).sort(()=>Math.random()-.5); controlMap={w:shuffled[0],a:shuffled[1],s:shuffled[2],d:shuffled[3]}; } player={x:9.5,y:9.5,dx:0,dy:0}; heldKeys.clear(); dots=[]; map.forEach((row,y)=>[...row].forEach((cell,x)=>{if(cell==='0' && !(x===9&&y===9)) dots.push({x,y});})); modeLabel.textContent=mode; confusionEl.textContent=mode; scoreEl.textContent='0000'; dotsEl.textContent=dots.length; const sessionLimit=random(30,120); let remaining=sessionLimit; timerEl.textContent=formatTime(remaining); clearInterval(sessionTimer); sessionTimer=setInterval(()=>{ remaining--; timerEl.textContent=formatTime(remaining); if(remaining<=0) showHome(); },1000); clearTimeout(idleTimer); resetIdle(); lastFrame=performance.now(); requestAnimationFrame(draw); }
+		const formatTime=s=>Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0');
+		function resetIdle(){ clearTimeout(idleTimer); idleTimer=setTimeout(showHome,random(5,10)*60*1000); }
+		document.addEventListener('keydown',e=>{if(!gameStarted)return; const key=e.key.toLowerCase(); if(!['w','a','s','d'].includes(key)){showHome();return;} e.preventDefault(); heldKeys.add(key); [player.dx,player.dy]=directionFor(key); resetIdle(); });
+		document.addEventListener('keyup',e=>{if(['w','a','s','d'].includes(e.key.toLowerCase())) heldKeys.delete(e.key.toLowerCase());});
+		function directionFor(key){ return controlMap[key]; }
+		function canMove(x,y){ const margin=.27; return [[x-margin,y-margin],[x+margin,y-margin],[x-margin,y+margin],[x+margin,y+margin]].every(([px,py])=>map[Math.floor(py)]?.[Math.floor(px)]==='0'); }
+		function draw(now=performance.now()){ if(!gameStarted)return; const elapsed=Math.min((now-lastFrame)/1000,.05); lastFrame=now; const activeKey=[...heldKeys].pop(); if(activeKey){resetIdle();[player.dx,player.dy]=directionFor(activeKey);} if(player.dx||player.dy){const speed=4.2, nextX=player.x+player.dx*speed*elapsed, nextY=player.y+player.dy*speed*elapsed;if(canMove(nextX,nextY)){player.x=nextX;player.y=nextY;}else if(canMove(nextX,player.y)){player.x=nextX;}else if(canMove(player.x,nextY)){player.y=nextY;}}
+			const cell=canvas.width/map[0].length, h=canvas.height/map.length; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#111a11';ctx.fillRect(0,0,canvas.width,canvas.height); map.forEach((row,y)=>[...row].forEach((v,x)=>{if(v==='1'){ctx.fillStyle='#253d2b';ctx.fillRect(x*cell+2,y*h+2,cell-4,h-4);ctx.fillStyle='#4a7651';ctx.fillRect(x*cell+5,y*h+5,cell-10,2);}})); dots.forEach(d=>{ctx.fillStyle='#d4ff3f';ctx.fillRect(d.x*cell+cell*.44,d.y*h+h*.44,3,3);}); const hit=dots.findIndex(d=>Math.hypot(d.x+.5-player.x,d.y+.5-player.y)<.35);if(hit>=0){dots.splice(hit,1);score+=10;scoreEl.textContent=String(score).padStart(4,'0');dotsEl.textContent=dots.length;} ctx.fillStyle='#ff6859';ctx.beginPath();ctx.arc(player.x*cell,player.y*h,cell*.37,0.2,Math.PI*1.8);ctx.lineTo(player.x*cell,player.y*h);ctx.fill(); ctx.fillStyle='#d4ff3f';ctx.font='12px DM Mono';ctx.fillText('KEEP MOVING',18,28);requestAnimationFrame(draw); }
+		showHome(visits===0?0:undefined);
+	</script>
+</body>
+</html>
 
